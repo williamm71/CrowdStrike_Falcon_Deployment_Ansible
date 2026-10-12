@@ -1,1 +1,34 @@
+- name: Deploy Crowdstrike Falcon Sensor (Local File)
+  hosts: YOUR_INVENTORY_FILE_HERE
+  become: yes
 
+  vars:
+    falcon_cid: "YOUR_CID_HERE"
+    control_node_sensor_path: "/YOUR/PATH/TO/SENSOR/FILES/HERE"
+    target_vm_sensor_path: "/YOUR/PATH/TO/WHERE/SENSOR/WILL/LIVE"
+    falcon_install_method: file
+    falcon_localfile_path: "{{ target_vm_sensor_path }}"
+
+  pre_tasks:
+    - name: Ensure /install directory exists on target VM #<----- This can be anything, I just used /install :p
+      ansible.builtin.file:
+        path: /install
+        state: directory
+        mode: '0755'
+
+    - name: Copy Falcon Sensor RPM From Control Node To Target VM
+      ansible.builtin.copy:
+        src: "{{ control_node_sensor_path }}"
+        dest: "{{ target_vm_sensor_path }}"
+        mode: '0644'
+
+  roles:
+    - role: crowdstrike.falcon.falcon_install
+    - role: crowdstrike.falcon.falcon_configure
+
+  post_tasks:
+    - name: Clean up - Remove copied Falcon Sensor RPM from Target VM
+      ansible.builtin.file:
+        path: "{{ target_vm_sensor_path }}"
+        state: absent
+      when: ansible_check_mode is not defined or not ansible_check_mode  
