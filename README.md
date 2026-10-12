@@ -4,3 +4,4 @@ This is a repository containing steps &amp; files on how to automate the deploym
 Notes:
 - You must ensure that you have ansible accounts on each system that is having the sensor deployed
 - The playbook itself is raw, and you will need to create the actual .yml file on your control system, then copy paste the information (and fill in specifics to your environment)
+- This will work as far back as each sensor is supported. All you'll have to do is change the file path on the control node depending on which version you're deploying
